@@ -7,8 +7,8 @@ from ..utils.hashing import hash_password, verify_password
 class UserController:
 
     @staticmethod
-    async def get_user(db: Session):
-        user_list = db.query(User).all()
+    async def get_user(db: Session, skip: int = 0, limit: int = 10):
+        user_list = db.query(User).offset(skip).limit(limit).all()
         if not user_list:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
@@ -88,3 +88,8 @@ class UserController:
     async def get_user_by_email(db: Session, email: str):
         user = db.query(User).filter(User.email == email).first()
         return user
+
+    @staticmethod
+    async def get_total_user(db: Session):
+        total = db.query(User).count()
+        return total
