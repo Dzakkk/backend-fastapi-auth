@@ -17,6 +17,13 @@ class UserCreate(BaseModel):
     address: Optional[str]
     password: str
 
+class UserEdit(BaseModel):
+    username: str
+    email: EmailStr
+    telephone: str
+    age: Optional[int]
+    address: Optional[str]
+
 class UserResponse(BaseModel):
     id: uuid.UUID
     username: str

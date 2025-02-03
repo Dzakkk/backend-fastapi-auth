@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from .routes import main_router
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Ini Nyoba", version="1.1")
+app = FastAPI(title="User Attendance", version="1.2")
 
 app.add_middleware(
     CORSMiddleware,

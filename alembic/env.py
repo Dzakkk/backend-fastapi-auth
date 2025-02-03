@@ -6,6 +6,8 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.models.user import Base
+from app.models.attendance import Base
+from app.models.leave import Base
 from app.config.connection_db import DB_URL
 
 # this is the Alembic Config object, which provides

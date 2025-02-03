@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from fastapi.responses import JSONResponse
-from ..schemas.user_schema import UserCreate, UserResponse, ErrorResponse, UserToken, UserLogin
+from ..schemas.user_schema import UserCreate, UserResponse, ErrorResponse, UserToken, UserLogin, UserEdit
 from ..models.user import User
 from fastapi.security import OAuth2PasswordBearer
 from ..config.setting_session import get_db
@@ -16,26 +16,39 @@ UserRouter = APIRouter()
 bearer_scheme = HTTPBearer()
 
 @UserRouter.get(path="/users", responses={404: {"model": ErrorResponse}})
-async def get_users(page: int = 1, db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
+async def get_users(
+    page: int = 0, 
+    limit: int = 10,
+    db: Session = Depends(get_db),
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)
+):
     try:
-        users = await UserController.get_user(db, page, 10)
+        skip = page * limit
+        users = await UserController.get_user(db, skip, limit)
         total = await UserController.get_total_user(db)
-        if not users:
+        
+        if not users: 
             raise HTTPException(status_code=404, detail="No users found")
-        return {"status_code": status.HTTP_200_OK, "total": total, "data": users}
+        
+        return {
+            "status_code": status.HTTP_200_OK,
+            "total": total,
+            "data": users
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# @UserRouter.get(path="/users2", responses={404: {"model": ErrorResponse}})
-# async def get_users(db: Session = Depends(get_db)):
 
-#     try:
-#         users = await UserController.get_user(db)
-#         if not users:
-#             raise HTTPException(status_code=404, detail="No users found")
-#         return {"status_code": status.HTTP_200_OK, "data": users}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+@UserRouter.get(path="/users2", responses={404: {"model": ErrorResponse}})
+async def get_users(db: Session = Depends(get_db)):
+
+    try:
+        users = await UserController.get_user2(db)
+        if not users:
+            raise HTTPException(status_code=404, detail="No users found")
+        return {"status_code": status.HTTP_200_OK, "data": users}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
 
 @UserRouter.get(path="/users/{username}", responses={404: {"model": ErrorResponse}})
@@ -61,7 +74,7 @@ async def create_user(input: UserCreate, db: Session = Depends(get_db), credenti
 
 
 @UserRouter.put(path="/users/{user_id}", responses={404: {"model": ErrorResponse}, 500: {"model": ErrorResponse}})
-async def update_user(user_id: str, input: UserCreate, db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
+async def update_user(user_id: str, input: UserEdit, db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
     try:
         user = await UserController.update_user(db, user_id, input)
         if not user:

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from ..models.user import User
-from ..schemas.user_schema import UserBase, UserResponse
+from ..schemas.user_schema import UserBase, UserResponse, UserEdit
 from ..utils.hashing import hash_password, verify_password
 
 class UserController:
@@ -9,6 +9,17 @@ class UserController:
     @staticmethod
     async def get_user(db: Session, skip: int = 0, limit: int = 10):
         user_list = db.query(User).offset(skip).limit(limit).all()
+        if not user_list:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail="No User found"
+            )
+        return user_list
+
+    
+    @staticmethod
+    async def get_user2(db: Session):
+        user_list = db.query(User).all()
         if not user_list:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
@@ -51,27 +62,21 @@ class UserController:
         return user
     
     @staticmethod
-    async def update_user(db: Session, id: str, input:UserBase ):
+    async def update_user(db: Session, id: str, input: UserEdit):
         user = db.query(User).filter(User.id == id).first()
-        if user is None:
+        if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
                 detail="User not found"
             )
-        
-        user.username = input.username
-        user.email = input.email
-        user.telephone = input.telephone
-        user.age = input.age
-        user.address = input.address
 
-        user.password = hash_password(input.password)
+        for key, value in input.dict(exclude_unset=True).items():
+            setattr(user, key, value)
 
         db.commit()
         db.refresh(user)
-        
-        return user
 
+        return user
 
     @staticmethod
     async def delete_user(user_id: str, db: Session):

@@ -2,6 +2,7 @@ import uuid
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from ..config.connection_db import Base
+from sqlalchemy.orm import relationship
 
 class User(Base):
     __tablename__ = "users"
@@ -13,3 +14,6 @@ class User(Base):
     password = Column(String, nullable=False)
     age = Column(Integer, unique=False, nullable=True)
     address = Column(Text, unique=False, nullable=True)
+
+    attendance_records = relationship("Attendance", back_populates="user")
+    leave_requests = relationship("LeaveRequest", back_populates="user")
