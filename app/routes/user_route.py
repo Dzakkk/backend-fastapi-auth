@@ -71,6 +71,16 @@ async def create_user(input: UserCreate, db: Session = Depends(get_db), credenti
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@UserRouter.post(path="/users2", responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}})
+async def create_user(input: UserCreate, db: Session = Depends(get_db)):
+    try:
+        user = await UserController.create_user(input, db)
+        return {"status_code": status.HTTP_201_CREATED, "data": user}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @UserRouter.put(path="/users/{user_id}", responses={404: {"model": ErrorResponse}, 500: {"model": ErrorResponse}})

@@ -1,19 +1,29 @@
 from sqlalchemy.orm import Session
 from ..models.attendance import Attendance
-from ..schemas.attendance_schema import Attendance, AttendanceCreate, AttendanceUpdate
+from ..schemas.attendance_schema import AttendanceBase, AttendanceCreate, AttendanceUpdate
 from fastapi import HTTPException, status
+from sqlalchemy.exc import SQLAlchemyError
+import uuid
 
 class AttendanceController:
 
     @staticmethod
     async def create_attendance(input: AttendanceCreate, db: Session):
-        new_attendance = Attendance(**input.dict())
-        db.add(new_attendance)
-        db.commit()
-        db.refresh(new_attendance)
-        return new_attendance
-    
+        try:
+            new_attendance = Attendance(
+                user_id=input.user_id,
+                check_in=input.check_in,
+            )
+            db.add(new_attendance)
+            db.commit()
+            db.refresh(new_attendance)
+
+            return new_attendance
+        except SQLAlchemyError as e:
+            db.rollback()
+            raise e
     @staticmethod
+
     async def update_attendance(db: Session, id: str, input: AttendanceUpdate):
         attendance = db.query(Attendance).filter(Attendance.id == id).first()
         if not attendance:

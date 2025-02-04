@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from fastapi.responses import JSONResponse
-from ..schemas.attendance_schema import Attendance, AttendanceCreate, AttendanceUpdate, ErrorResponse
+from ..schemas.attendance_schema import AttendanceCreate, AttendanceUpdate, ErrorResponse
 from ..models.attendance import Attendance
 from fastapi.security import OAuth2PasswordBearer
 from ..config.setting_session import get_db

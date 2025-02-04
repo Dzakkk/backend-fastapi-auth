@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from ..config.connection_db import Base
 from datetime import datetime
 from sqlalchemy.orm import relationship
-
+from .user import User
 
 class Attendance(Base):
     __tablename__ = "attendance"
