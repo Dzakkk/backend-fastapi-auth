@@ -63,8 +63,6 @@ async def delete_attendance(attendance_id: str, db: Session = Depends(get_db), c
 async def get_attendances_by_user_id(user_id: str, db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
     try:
         attendances = await AttendanceController.get_attendance_by_user_id(db, user_id)
-        if not attendances:
-            raise HTTPException(status_code=404, detail="No Attendance found")
         return {"status_code": status.HTTP_200_OK, "data": attendances}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

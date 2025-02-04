@@ -72,9 +72,4 @@ class AttendanceController:
     @staticmethod
     async def get_attendance_by_user_id(db: Session, user_id: str):
         attendance = db.query(Attendance).filter(Attendance.user_id == user_id).all()
-        if not attendance:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, 
-                detail="Attendance not found"
-            )
-        return attendance
+        return attendance if attendance else []

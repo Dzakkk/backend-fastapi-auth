@@ -110,7 +110,7 @@ async def login_user(user_login: UserLogin, db: Session = Depends(get_db)):
     user = await UserController.get_user_by_email(db, user_login.email)
     if user and verify_password(user_login.password, user.password):
         access_token = create_access_token(data={"sub": user.email})
-        return {"access_token": access_token}
+        return {"access_token": access_token, "user_id": user.id, "token_type": "bearer"}
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
